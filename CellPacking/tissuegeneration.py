@@ -1,6 +1,7 @@
 from tyssue import Sheet
 from tyssue import SheetGeometry
 
+
 def sheet_init (nx, ny):
     sheet = Sheet.planar_sheet_3d(
                 'sheet', nx=nx, ny=ny, distx=1, disty=1, noise=0.2)
@@ -21,4 +22,4 @@ def sheet_init (nx, ny):
                                       'y': [-ny/2-1, ny/2+1]}
                     }})
     SheetGeometry.update_all(sheet)
-    return sheet
+    return sheet, SheetGeometry
