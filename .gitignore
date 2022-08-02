@@ -74,6 +74,7 @@ nosetests.xml
 doc/build/
 build/
 dist/
+.idea
 
 ## emacs and latex
 *.*~
