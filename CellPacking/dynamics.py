@@ -19,7 +19,7 @@ class Compression(effectors.AbstractEffector):
         return grad, None
 
 
-class Shear(effectors.AbstractEffector):
+class AnisotropicLineTension(effectors.AbstractEffector):
     @staticmethod
     def energy(sheet):
         return sheet.edge_df.eval('gamma * length /2 * is_active')  # accounts for half edges

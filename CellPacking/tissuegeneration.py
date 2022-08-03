@@ -6,7 +6,7 @@ from .dynamics import ShearPlanarGeometry as geom
 
 def sheet_init(nx, ny, gamma_0=0.5, phi=np.pi / 3, noise=0.2):
     sheet = Sheet.planar_sheet_2d(
-        'sheet', nx=nx, ny=ny, distx=1, disty=1, noise=0.5)
+        'sheet', nx=nx, ny=ny, distx=1, disty=1, noise=noise)
 
     # Cut at the border to avoid strange cells
     to_cut = sheet.cut_out([(0.1, nx), (0.1, ny)])
