@@ -2,6 +2,7 @@ import numpy as np
 from tyssue.utils.utils import to_nd
 from tyssue.dynamics import effectors
 from tyssue.geometry.planar_geometry import PlanarGeometry
+from tyssue import MonolayerGeometry
 
 
 class Compression(effectors.AbstractEffector):
@@ -42,13 +43,38 @@ class ShearPlanarGeometry(PlanarGeometry):
 
     @staticmethod
     def update_gamma(cls, sheet):
-        gamma_0 = sheet.specs['edge']['gamma_0']
+        gamma_0 = sheet.edge_df['gamma_0']
         phi = sheet.specs['edge']['phi']
 
         e_angle = cls.get_phis(sheet)
         sheet.edge_df['angle'] = e_angle
         # sheet.edge_df["angle"] = [np.pi + a if a < 0 else a for a in e_angle]
-        sheet.edge_df["gamma"] = gamma_0 * np.cos(2 * (e_angle * phi))
+        sheet.edge_df["gamma"] = gamma_0 * np.cos(2 * (e_angle - phi))
+
+    @classmethod
+    def get_phis(cls, sheet):
+        if "dx" not in sheet.edge_df:
+            cls.update_dcoords(sheet)
+            cls.update_centroid(sheet)
+
+        return np.arctan2(sheet.edge_df["dy"], sheet.edge_df["dx"])
+
+
+class ShearMonolayerGeometry(MonolayerGeometry):
+    @classmethod
+    def update_all(cls, sheet):
+        MonolayerGeometry.update_all(sheet)
+        cls.update_gamma(cls, sheet)
+
+    @staticmethod
+    def update_gamma(cls, sheet):
+        gamma_0 = sheet.edge_df['gamma_0']
+        phi = sheet.specs['edge']['phi']
+
+        e_angle = cls.get_phis(sheet)
+        sheet.edge_df['angle'] = e_angle
+        # sheet.edge_df["angle"] = [np.pi + a if a < 0 else a for a in e_angle]
+        sheet.edge_df["gamma"] = gamma_0 * np.cos(2 * (e_angle - phi))
 
     @classmethod
     def get_phis(cls, sheet):
