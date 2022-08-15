@@ -9,6 +9,7 @@
 *.tif
 *.csv
 *.eps
+*.vtk 
 
 # Packages
 *.egg
