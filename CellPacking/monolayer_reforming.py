@@ -1,6 +1,39 @@
 from tyssue.config.geometry import bulk_spec
 from tyssue.topology.base_topology import collapse_edge
 from tyssue.topology.bulk_topology import split_vert
+from tyssue.core.history import HistoryHdf5
+
+
+def history_monolayer_from_sheets(apical_history, basal_history, hf5file=None):
+    # 1
+    init_monolayer = monolayer_from_sheets(apical_history.retrieve(0).datasets, basal_history.retrieve(0).datasets,
+                                           distance=1)
+    monolayer = init_monolayer.copy(deep_copy=True)
+    # 2
+    if hf5file is None:
+        monolayer_history = HistoryHdf5(init_monolayer)
+    else:
+        monolayer_history = HistoryHdf5(init_monolayer, hf5file=hf5file)
+
+    # 3
+    for i in apical_history.time_stamps:
+        apical_sheet = apical_history.retrieve(i)
+        basal_sheet = basal_history.retrieve(i)
+
+        # 3a
+        if apical_history.trackevent[i]['remove_edge'][0] != -1:
+            for e in apical_history.trackevent[i]['remove_edge']:
+                remove_e = monolayer_history.sheet.edge_df[
+                    (monolayer_history.sheet.edge_df['segment'] == 'apical') & (
+                                monolayer_history.sheet.edge_df['id_sheet'] == e)].index
+                collapse_edge(monolayer_history.sheet, remove_e, allow_two_sided=False)
+                monolayer_history.sheet.edge_df.loc[
+                    monolayer_history.sheet.edge_df['segment'] == 'apical', 'id_sheet'] = apical_sheet.edge_df.index
+                monolayer_history.sheet.vert_df.loc[
+                    monolayer_history.sheet.vert_df['segment'] == 'apical', 'id_sheet'] = apical_sheet.vert_df.index
+
+        monolayer_history.record(time_stamp=i)
+    return monolayer_history
 
 
 def monolayer_from_sheets(apical_datasets, basal_datasets, distance=1):
@@ -14,6 +47,10 @@ def monolayer_from_sheets(apical_datasets, basal_datasets, distance=1):
     apical_vert["segment"] = "apical"
     apical_face["segment"] = "apical"
     apical_edge["segment"] = "apical"
+
+    apical_vert["id_sheet"] = apical_vert.index
+    apical_face["id_sheet"] = apical_face.index
+    apical_edge["id_sheet"] = apical_edge.index
 
     apical_vert['z'] = distance / 2
     apical_face['z'] = distance / 2
@@ -34,6 +71,10 @@ def monolayer_from_sheets(apical_datasets, basal_datasets, distance=1):
     basal_vert["segment"] = "basal"
     basal_face["segment"] = "basal"
     basal_edge["segment"] = "basal"
+
+    basal_vert["id_sheet"] = basal_vert.index
+    basal_face["id_sheet"] = basal_face.index
+    basal_edge["id_sheet"] = basal_edge.index
 
     basal_vert['z'] = -distance / 2
     basal_face['z'] = -distance / 2
@@ -98,9 +139,6 @@ def monolayer_from_sheets(apical_datasets, basal_datasets, distance=1):
         for col, value in specs[elem].items():
             if col not in datasets[elem]:
                 datasets[elem][col] = value
-
-    datasets["face"]["id"] = np.arange(datasets["face"].shape[0])
-    datasets["cell"]["id"] = np.arange(datasets["cell"].shape[0])
 
     return datasets
 
