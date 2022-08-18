@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 from tyssue.utils.utils import to_nd
 from tyssue.dynamics import units
 from tyssue.dynamics import effectors
@@ -26,17 +27,16 @@ class AnisotropicLineTension(effectors.AbstractEffector):
 
     @staticmethod
     def energy(sheet):
-        return sheet.edge_df.eval('gamma * length /2 * is_active')  # accounts for half edges
+        return sheet.edge_df.eval('gamma * length * is_active')  # accounts for half edges
 
     @staticmethod
     def gradient(sheet):
         grad_srce = -sheet.edge_df[sheet.ucoords] * to_nd(
-            sheet.edge_df.eval("gamma * is_active / 2"), len(sheet.coords)
+            sheet.edge_df.eval("gamma * is_active"), len(sheet.coords)
         )
         grad_srce.columns = ["g" + u for u in sheet.coords]
         grad_trgt = -grad_srce
         return grad_srce, grad_trgt
-
 
 
 class BarrierElasticity(effectors.AbstractEffector):
@@ -76,7 +76,7 @@ class ShearPlanarGeometry(PlanarGeometry):
     @staticmethod
     def update_gamma(cls, sheet):
         gamma_0 = sheet.edge_df['gamma_0']
-        phi = sheet.specs['edge']['phi0']
+        phi = sheet.specs['edge']['phi0_apical']
 
         e_angle = cls.get_phis(sheet)
         sheet.edge_df['angle'] = e_angle
@@ -101,7 +101,12 @@ class ShearMonolayerGeometry(MonolayerGeometry):
     @staticmethod
     def update_gamma(cls, sheet):
         gamma_0 = sheet.edge_df['gamma_0']
-        phi = sheet.specs['edge']['phi0']
+        # phi = sheet.specs['edge']['phi0']
+
+        phi = pd.to_numeric(sheet.edge_df['gamma_0']) * 0
+        phi[sheet.edge_df[sheet.edge_df['segment'] == 'apical'].index] = sheet.specs['edge']['phi0_apical']
+        phi[sheet.edge_df[sheet.edge_df['segment'] == 'basal'].index] = sheet.specs['edge']['phi0_basal']
+        phi = phi.to_numpy()
 
         e_angle = cls.get_phis(sheet)
         sheet.edge_df['angle'] = e_angle

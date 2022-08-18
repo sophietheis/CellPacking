@@ -37,6 +37,57 @@ def sheet_init(nx, ny, gamma_0=0.5, phi=np.pi / 3, noise=0.2):
     return sheet, geom
 
 
+def symetric_circular(radius, gamma_0=0.5, phi_apical=np.pi / 2, phi_basal=0, noise=0.0):
+    ncells = radius * 3
+    sheet = Sheet.planar_sheet_2d(
+        "planar", nx=ncells, ny=ncells, distx=1, disty=1, noise=noise,
+    )
+
+    sheet.specs['settings']['dt'] = 0.01
+    sheet.edge_df['density'] = 0.
+    sheet.edge_df['weight'] = 1
+
+    sheet.edge_df['line_tension'] = sheet.edge_df['weight'] * 1
+    sheet.edge_df['is_active'] = 1
+    sheet.face_df['prefered_area'] = 1
+    sheet.face_df['prefered_perimeter'] = 3. * np.sqrt(sheet.face_df['prefered_area'])
+    sheet.face_df['perimeter_elasticity'] = 1.
+    sheet.face_df['area_elasticity'] = 1.
+    sheet.vert_df['viscosity'] = 1.0
+    sheet.update_specs({"vert": {"compression": 0.0}})  # 0.01
+    sheet.update_specs({"edge": {"gamma_0": gamma_0,
+                                 "phi0_apical": phi_apical,
+                                 "phi0_basal": phi_basal},
+                        })
+    sheet.edge_df['strain'] = 0.
+
+    sheet.get_opposite()
+    sheet.edge_df.loc[sheet.edge_df.opposite == -1, 'line_tension'] = 5.0
+
+    geom.update_all(sheet)
+
+    geom.scale(sheet, sheet.face_df.area.median() ** (-0.5), sheet.coords)
+    geom.center(sheet)
+    geom.update_all(sheet)
+    # Put the center most cell at the origin
+    central_cell = (sheet.face_df.x ** 2 + sheet.face_df.y ** 2).idxmin()
+    sheet.vert_df[["x", "y"]] -= sheet.face_df.loc[central_cell, ["x", "y"]]
+    geom.update_all(sheet)
+
+    out = sheet.edge_df[
+        (sheet.edge_df.fx ** 2 + sheet.edge_df.fy ** 2) > radius ** 2
+        ].index
+    sheet.remove(out)
+    geom.update_all(sheet)
+    geom.center(sheet)
+    sheet.sanitize(trim_borders=True)
+    geom.update_all(sheet)
+
+    sheet.edge_df["opposite"] = sheet.get_opposite()
+    border_edges = sheet.edge_df[sheet.edge_df["opposite"] == -1].index
+    return sheet, border_edges
+
+
 def generate_ellipsis(Nf, a, b, cell_height, R_vit=None, apical="in"):
     """Generates a 2D tyssue object aranged in a ring of Nf tetragonal cells
     with inner diameter R_in and outer diameter R_out
