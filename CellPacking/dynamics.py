@@ -39,6 +39,38 @@ class AnisotropicLineTension(effectors.AbstractEffector):
         return grad_srce, grad_trgt
 
 
+from tyssue.dynamics.effectors import elastic_force, elastic_energy
+
+
+class PlaneBarrierElasticity(effectors.AbstractEffector):
+    """
+    Barrier use to maintain the tissue integrity.
+    """
+
+    dimensions = units.line_elasticity
+    magnitude = "plane barrier_elasticity"
+    label = "Plane barrier elasticity"
+    element = "vert"
+    specs = {
+        "vert": {"barrier_elasticity": 1.0, "is_active": 1, "z": 0.0, "z_barrier": 1}
+    }  # distance to a barrier membrane
+
+    @staticmethod
+    def energy(eptm):
+        return eptm.vert_df.eval("0.5*(z_distance)**2 * barrier_elasticity")
+
+    @staticmethod
+    def gradient(eptm):
+        kl_l0 = elastic_force(eptm.vert_df, "z_distance", "barrier_elasticity", 0)
+        grad = eptm.vert_df[eptm.coords] * to_nd(kl_l0, eptm.dim)
+        grad.columns = ["g" + u for u in eptm.coords]
+        grad["gx"] = 0
+        grad["gy"] = 0
+        # if "z" in eptm.coords:
+        #     grad["gz"] = 0
+        return grad, grad
+
+
 class BarrierElasticity(effectors.AbstractEffector):
     """
     Barrier use to maintain the tissue integrity.
@@ -97,6 +129,18 @@ class ShearMonolayerGeometry(MonolayerGeometry):
     def update_all(cls, sheet):
         MonolayerGeometry.update_all(sheet)
         cls.update_gamma(cls, sheet)
+        cls.update_zdistance(cls, sheet)
+
+    @staticmethod
+    def update_zdistance(cls, sheet):
+        z_barrier = sheet.specs['cell']['z_barrier']
+        sheet.vert_df.loc[sheet.vert_df['segment'] == 'apical', 'z_barrier'] = z_barrier
+        sheet.vert_df.loc[sheet.vert_df['segment'] == 'basal', 'z_barrier'] = -z_barrier
+        sheet.vert_df.loc[sheet.vert_df['segment'] == 'lateral', 'z_barrier'] = z_barrier * 10
+
+        sheet.vert_df['z_distance'] = (np.abs(sheet.vert_df["z"])
+                                       - np.abs(sheet.vert_df["z_barrier"])
+                                       ).clip(lower=0)
 
     @staticmethod
     def update_gamma(cls, sheet):
