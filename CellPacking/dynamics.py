@@ -130,6 +130,12 @@ class ShearMonolayerGeometry(MonolayerGeometry):
         MonolayerGeometry.update_all(sheet)
         cls.update_gamma(cls, sheet)
         cls.update_zdistance(cls, sheet)
+        cls.update_prefered_value(cls, sheet)
+
+    def update_prefered_value(cls, sheet):
+        idx = sheet.face_df[(sheet.face_df['segment'] == 'lateral') & (sheet.face_df['num_sides'] == 3)].index
+        sheet.face_df.loc[idx, 'prefered_area'] = sheet.specs['face']['prefered_area'] / 4
+        sheet.face_df.loc[idx, 'prefered_perimeter'] = sheet.specs['face']['prefered_perimeter'] / 4
 
     @staticmethod
     def update_zdistance(cls, sheet):
@@ -156,6 +162,8 @@ class ShearMonolayerGeometry(MonolayerGeometry):
         sheet.edge_df['angle'] = e_angle
         # sheet.edge_df["angle"] = [np.pi + a if a < 0 else a for a in e_angle]
         sheet.edge_df["gamma"] = gamma_0 * np.cos(2 * (e_angle - phi))
+        sheet.edge_df['line_tension'] = sheet.edge_df["gamma"]
+        sheet.edge_df.loc[sheet.edge_df['segment'] == 'lateral', 'line_tension'] = 0.4
 
     @classmethod
     def get_phis(cls, sheet):
