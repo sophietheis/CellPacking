@@ -3,6 +3,9 @@ from tyssue.topology.base_topology import collapse_edge
 from tyssue.topology.bulk_topology import split_vert
 from tyssue.core.history import HistoryHdf5
 
+import pandas as pd
+import numpy as np
+
 
 def history_monolayer_from_sheets(apical_history, basal_history, hf5file=None):
     # 1

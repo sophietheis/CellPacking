@@ -16,9 +16,26 @@ class Compression(effectors.AbstractEffector):
     @staticmethod
     def gradient(sheet):
         grad = sheet.vert_df[sheet.coords].copy()
-        grad.columns = ['gx', 'gy']
+        grad.columns = ['gx', 'gy', 'gz']
+        grad['gz'] = 0
         grad['gy'] = 0
         grad['gx'] = sheet.vert_df.eval("compression * x")
+        return grad, None
+
+
+class MonolayerCompression(effectors.AbstractEffector):
+
+    @staticmethod
+    def energy(sheet):
+        return sheet.vert_df.eval('compression_x * x**2')
+
+    @staticmethod
+    def gradient(sheet):
+        grad = sheet.vert_df[sheet.coords].copy()
+        grad.columns = ['gx', 'gy', 'gz']
+        grad['gz'] = 0
+        grad['gy'] = 0
+        grad['gx'] = sheet.vert_df.eval("compression_x * x")
         return grad, None
 
 
@@ -114,6 +131,7 @@ class ShearPlanarGeometry(PlanarGeometry):
         sheet.edge_df['angle'] = e_angle
         # sheet.edge_df["angle"] = [np.pi + a if a < 0 else a for a in e_angle]
         sheet.edge_df["gamma"] = gamma_0 * np.cos(2 * (e_angle - phi))
+        sheet.edge_df['line_tension'] = sheet.edge_df["gamma"]
 
     @classmethod
     def get_phis(cls, sheet):
