@@ -11,7 +11,7 @@ class Compression(effectors.AbstractEffector):
 
     @staticmethod
     def energy(sheet):
-        return sheet.vert_df.eval('compression * x**2')
+        return sheet.vert_df.eval('compression * x')
 
     @staticmethod
     def gradient(sheet):
@@ -19,7 +19,7 @@ class Compression(effectors.AbstractEffector):
         grad.columns = ['gx', 'gy', 'gz']
         grad['gz'] = 0
         grad['gy'] = 0
-        grad['gx'] = sheet.vert_df.eval("compression * x")
+        grad['gx'] = sheet.vert_df.eval("compression")
         return grad, None
 
 
@@ -125,7 +125,10 @@ class ShearPlanarGeometry(PlanarGeometry):
     @staticmethod
     def update_gamma(cls, sheet):
         gamma_0 = sheet.edge_df['gamma_0']
-        phi = sheet.specs['edge']['phi0_apical']
+        if 'phi0' in sheet.specs['edge']:
+            phi = sheet.specs['edge']['phi0']
+        else:
+            phi = sheet.specs['edge']['phi0_apical']
 
         e_angle = cls.get_phis(sheet)
         sheet.edge_df['angle'] = e_angle
@@ -181,6 +184,7 @@ class ShearMonolayerGeometry(MonolayerGeometry):
         # sheet.edge_df["angle"] = [np.pi + a if a < 0 else a for a in e_angle]
         sheet.edge_df["gamma"] = gamma_0 * np.cos(2 * (e_angle - phi))
         sheet.edge_df['line_tension'] = sheet.edge_df["gamma"]
+        # sheet.edge_df.loc[sheet.edge_df['segment'] == 'basal', 'line_tension'] = 0.4
         sheet.edge_df.loc[sheet.edge_df['segment'] == 'lateral', 'line_tension'] = 0.4
 
     @classmethod

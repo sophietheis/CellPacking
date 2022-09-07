@@ -45,10 +45,8 @@ def symetric_circular(radius, gamma_0=0.5, phi_apical=np.pi / 2, phi_basal=0, no
     )
 
     sheet.specs['settings']['dt'] = 0.01
-    sheet.edge_df['density'] = 0.
-    sheet.edge_df['weight'] = 1
 
-    sheet.edge_df['line_tension'] = sheet.edge_df['weight'] * 1
+    sheet.edge_df['line_tension'] = 0
     sheet.edge_df['is_active'] = 1
     sheet.face_df['prefered_area'] = 1
     sheet.face_df['prefered_perimeter'] = 3. * np.sqrt(sheet.face_df['prefered_area'])
