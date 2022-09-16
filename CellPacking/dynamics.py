@@ -11,7 +11,7 @@ class Compression(effectors.AbstractEffector):
 
     @staticmethod
     def energy(sheet):
-        return sheet.vert_df.eval('compression * x')
+        return sheet.vert_df.eval('compression * x**2')
 
     @staticmethod
     def gradient(sheet):
@@ -19,7 +19,7 @@ class Compression(effectors.AbstractEffector):
         grad.columns = ['gx', 'gy', 'gz']
         grad['gz'] = 0
         grad['gy'] = 0
-        grad['gx'] = sheet.vert_df.eval("compression")
+        grad['gx'] = sheet.vert_df.eval("compression*x")
         return grad, None
 
 
@@ -163,7 +163,7 @@ class ShearMonolayerGeometry(MonolayerGeometry):
         z_barrier = sheet.specs['cell']['z_barrier']
         sheet.vert_df.loc[sheet.vert_df['segment'] == 'apical', 'z_barrier'] = z_barrier
         sheet.vert_df.loc[sheet.vert_df['segment'] == 'basal', 'z_barrier'] = -z_barrier
-        sheet.vert_df.loc[sheet.vert_df['segment'] == 'lateral', 'z_barrier'] = z_barrier * 10
+        sheet.vert_df.loc[sheet.vert_df['segment'] == 'lateral', 'z_barrier'] = z_barrier
 
         sheet.vert_df['z_distance'] = (np.abs(sheet.vert_df["z"])
                                        - np.abs(sheet.vert_df["z_barrier"])
