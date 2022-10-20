@@ -4,7 +4,7 @@ from tyssue.utils.utils import to_nd
 from tyssue.dynamics import units
 from tyssue.dynamics import effectors
 from tyssue.geometry.planar_geometry import PlanarGeometry
-from tyssue import MonolayerGeometry
+from tyssue.geometry.bulk_geometry import MonolayerGeometry
 
 
 class Compression(effectors.AbstractEffector):

@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 import plotly.express as px
 
-from tyssue.draw.plt_draw import _get_lines
+# from tyssue.draw.plt_draw import _get_lines
 from tyssue.draw import highlight_cells
 from tyssue.draw.ipv_draw import sheet_view as sheet_view_3d
 
