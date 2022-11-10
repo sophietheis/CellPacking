@@ -3,11 +3,13 @@
 This is a flat monolayer simulation package for the article: 
 ### Curvature-induced cell rearrangements in biological tissues
 
-Yuting Lou, Jean-Francois Rupprecht, Tetsuya Hiraiwa, and Timothy E Saunders
+Yuting Lou<sup>1</sup>, Jean-Francois Rupprecht<sup>1,2</sup>, Sophie Theis<sup>3</sup>, Tetsuya Hiraiwa<sup>1</sup>, and Timothy E Saunders<sup>1,3</sup>
 
+<sup>1</sup>Mechanobiology Institute, National University of Singapore  
+<sup>2</sup>Aix Marseille Université, Université de Toulon, CNRS,  
+Centre de Physique Théorique, Turing Centre for Living Systems, Marseille, France  
+<sup>3</sup>Warwick Medical School, University of Warwick, Coventry, United Kingdom
 
-Try it with my binder by clicking the badge bellow:
-[![Binder](https://mybinder.org/badge_logo.svg)](PUT LINK HERE OF A NOTEBOOK)
 
 ## Installation
 This package is based on the [`tyssus`](https://tyssue.readthedocs.org) library and its dependencies. 
@@ -23,12 +25,12 @@ You can then download and install CellPacking from github:
 - with git:
 
 ```bash
-$ git clone https://github.com/sophietheis/CellPacking.git
+$ git clone https://github.com/TimSaundersLab/CellPacking.git
 $ cd invagination
 $ python setup.py install
 ```
 
-- or by downloading https://github.com/sophietheis/CellPacking/archive/master.zip ,  uncompressing the archive and running `python setup.py install` in the root directory.
+- or by downloading https://github.com/TimSaundersLab/CellPacking/archive/master.zip ,  uncompressing the archive and running `python setup.py install` in the root directory.
 
 ## Licence
 
