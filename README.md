@@ -1,5 +1,8 @@
 # CellPacking
 
+![image](https://user-images.githubusercontent.com/17041165/203357182-08c978cd-5a90-4862-85a2-b9a0f6d5d124.png)
+
+
 This is a flat monolayer simulation package for the article: 
 ### Curvature-induced cell rearrangements in biological tissues
 
@@ -12,7 +15,7 @@ Centre de Physique Théorique, Turing Centre for Living Systems, Marseille, Fran
 
 
 ## Installation
-This package is based on the [`tyssus`](https://tyssue.readthedocs.org) library and its dependencies. 
+This package is based on the [`tyssus`](https://tyssue.readthedocs.org) library and its dependencies It recquires a specific version of tyssue that you can find here : [tyssue](https://github.com/sophietheis/tyssue/tree/standardisation). 
 
 The recommanded installation route is to use the `conda` package manager. You can get a `conda` distribution for your OS at https://www.anaconda.com/download . Make sure to choose a python 3.6 version. Once you have installed conda, you can install tyssue with:
 
